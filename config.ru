@@ -21,16 +21,16 @@ class SlackDockerApp < Sinatra::Base
     user = "#{docker['push_data']['pusher']}"
 
     slack = {
-        "attachments": [
+        "attachments" => [
             {
-                "fallback": "New image build: #{title_link}",
-                "pretext": "New image build: #{title_link}",
-                "color": "#170061",
-                "fields": [
+                "fallback" => "New image build: #{title_link}",
+                "pretext" => "New image build: #{title_link}",
+                "color" => "#170061",
+                "fields" => [
                     {
-                        "title": "Notes",
-                        "value": "date: #{date}\nby: #{user}",
-                        "short": false
+                        "title" => "Notes",
+                        "value" => "date: #{date}\nby: #{user}",
+                        "short" => false
                     }
                 ]
             }
