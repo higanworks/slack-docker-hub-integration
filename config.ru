@@ -15,23 +15,30 @@ class SlackDockerApp < Sinatra::Base
     title_link = "<#{docker['repository']['repo_url']}|#{docker['repository']['repo_name']}>"
 
     #push data
-    millis = "#{docker['push_data']['pushed_at']}"
-    secs = sec = (millis.to_f / 1000).to_s
-    date = Date.strptime(secs, '%s')
-    
+    unixtime = "#{docker['push_data']['pushed_at']}"
+    date = DateTime.strptime(unixtime, '%s')
+
     user = "#{docker['push_data']['pusher']}"
-    images = docker['push_data']['images']
 
+    slack = {
+        "attachments": [
+            {
+                "fallback": "New image build: #{title_link}",
+                "pretext": "New image build: #{title_link}",
+                "color": "#170061",
+                "fields": [
+                    {
+                        "title": "Notes",
+                        "value": "date: #{date}\nby: #{user}",
+                        "short": false
+                    }
+                ]
+            }
+        ]
+    }
 
-    body = "[#{title_link}] new image build uploaded successfully.\n
-            Changes pushed by #{user} on #{date}:\n
-            #{images.join("\n")}
-    "
-
-    slack = { text: body }
-
-    RestClient.post("https://hooks.slack.com/#{params[:splat].first}", payload: slack.to_json){ |response, request, result, &block|
-        RestClient.post(docker['callback_url'], {state: response.code == 200 ? "success" : "error"}.to_json, :content_type => :json)
+    RestClient.post("https://hooks.slack.com/#{params[:splat].first}", payload: slack.to_json) { |response, request, result, &block|
+      RestClient.post(docker['callback_url'], {state: response.code == 200 ? "success" : "error"}.to_json, :content_type => :json)
     }
   end
 end
