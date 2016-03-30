@@ -3,8 +3,10 @@ require 'bundler/setup'
 require 'sinatra/base'
 require 'rest-client'
 require 'json'
+require 'logger'
 
 class SlackDockerApp < Sinatra::Base
+  logger = ::Logger.new($stdout)
   get "/*" do
     params[:splat].first
   end
@@ -37,9 +39,13 @@ class SlackDockerApp < Sinatra::Base
         ]
     }
 
-    RestClient.post("https://hooks.slack.com/#{params[:splat].first}", payload: slack.to_json) { |response, request, result, &block|
-      RestClient.post(docker['callback_url'], {state: response.code == 200 ? "success" : "error"}.to_json, :content_type => :json)
-    }
+    begin
+      RestClient.post("https://hooks.slack.com/#{params[:splat].first}", payload: slack.to_json) { |response, request, result, &block|
+        RestClient.post(docker['callback_url'], {state: response.code == 200 ? "success" : "error"}.to_json, :content_type => :json)
+      }
+    rescue => e
+      logger.error e.inspect
+    end
   end
 end
 
