@@ -23,8 +23,8 @@ class SlackDockerApp < Sinatra::Base
     slack = {
         "attachments" => [
             {
-                "fallback" => "New image build: #{title_link}",
-                "pretext" => "New image build: #{title_link}",
+                "fallback" => "New image build: #{title_link} #{docker['push_data']['tag']}",
+                "pretext" => "New image build: #{title_link} #{docker['push_data']['tag']}",
                 "color" => "#170061",
                 "fields" => [
                     {
