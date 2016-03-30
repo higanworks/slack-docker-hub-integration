@@ -6,12 +6,18 @@ require 'json'
 require 'logger'
 
 class SlackDockerApp < Sinatra::Base
-  logger = ::Logger.new($stdout)
+  if ENV['DEBUG']
+    logger = ::Logger.new('/tmp/debug.log')
+  else
+    logger = ::Logger.new($stdout)
+  end
+
   get "/*" do
     params[:splat].first
   end
   post "/*" do
     docker = JSON.parse(request.body.read)
+    logger.warn docker if ENV['DEBUG']
 
     #Docker Hub Data
     title_link = "<#{docker['repository']['repo_url']}|#{docker['repository']['repo_name']}>"
