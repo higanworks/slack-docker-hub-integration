@@ -6,10 +6,13 @@ require 'json'
 require 'logger'
 
 class SlackDockerApp < Sinatra::Base
-  if ENV['DEBUG']
-    logger = ::Logger.new('/tmp/debug.log')
-  else
-    logger = ::Logger.new($stdout)
+  configure do
+    if ENV['DEBUG']
+      logger = ::Logger.new('/tmp/debug.log')
+      use Rack::CommonLogger, logger
+    else
+      require './now_common_logger'
+    end
   end
 
   get "/*" do
