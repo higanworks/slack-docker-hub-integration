@@ -16,3 +16,9 @@ https://slack-docker-hub-integration.herokuapp.com/
 
 
 Alternatively you could host the code yourself.
+
+----
+
+```
+$ docker run -it --rm -p 8080:8080 slack-docker-hub-integration:latest
+```
