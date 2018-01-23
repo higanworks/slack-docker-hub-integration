@@ -2,3 +2,5 @@
 !Gemfile
 !Gemfile.lock
 !config.ru
+!now_common_logger.rb
+
