@@ -18,7 +18,9 @@ class SlackDockerApp < Sinatra::Base
   get "/*" do
     params[:splat].first
   end
-  post "/*" do
+
+  # slack webhook
+  post "/services/*" do
     docker = JSON.parse(request.body.read)
     logger.warn docker if ENV['DEBUG']
 
@@ -49,7 +51,27 @@ class SlackDockerApp < Sinatra::Base
     }
 
     begin
-      RestClient.post("https://hooks.slack.com/#{params[:splat].first}", payload: slack.to_json) { |response, request, result, &block|
+      RestClient.post("https://hooks.slack.com/services/#{params[:splat].first}", payload: slack.to_json) { |response, request, result, &block|
+        RestClient.post(docker['callback_url'], {state: response.code == 200 ? "success" : "error"}.to_json, :content_type => :json)
+      }
+    rescue => e
+      logger.error e.inspect
+    end
+  end
+
+  # typetalk postBot
+  post "/typetalkv1/*/*" do
+    docker = JSON.parse(request.body.read)
+    title_link = "[#{docker['repository']['repo_name']}](#{docker['repository']['repo_url']})"
+    message = "New image build: #{title_link} #{docker['push_data']['tag']}"
+
+    topic = params[:splat].first
+    token = params[:splat].last
+    begin
+      RestClient.post(
+        "https://typetalk.com/api/v1/topics/#{topic}",
+        {typetalkToken: token, message: message}
+      ) { |response, request, result, &block|
         RestClient.post(docker['callback_url'], {state: response.code == 200 ? "success" : "error"}.to_json, :content_type => :json)
       }
     rescue => e
