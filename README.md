@@ -25,7 +25,14 @@ https://slack-docker-hub-integration.yourdomain.com/typetalkv1/${roomNumber}/${T
 
 ----
 
+test localy.
+
 ```
 $ docker run -it --rm -p 8080:8080 slack-docker-hub-integration:latest
 ```
 
+run on [now](https://zeit.co).
+
+```
+$ now higanworks/slack-docker-hub-integration#master
+```
